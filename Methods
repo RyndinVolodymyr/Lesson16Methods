@@ -1,0 +1,152 @@
+import UIKit
+
+/*
+1. Создайте тип Комната. У комнаты есть размеры W на H. И создайте тип Персонаж. У негоесть координата в комнате X и Y. Реализуйте функцию, которая красивенько текстом будет показывать положение персонажа в комнате
+ 
+2. Персонажу добавьте метод идти, который принимает энумчик лево, право, верх, вниз. Этот метод должен передвигать персонажа. Реализуйте правило что персонаж не должен покинуть пределы комнаты. Подвигайте персонажа и покажите это графически
+ 
+3. Создать тип Ящик. У ящика также есть координата в комнате X и Y. Ящик также не может покидать пределы комнаты и ящик также должен быть распечатан вместе с персонажем в функции печати.
+ 
+4. Теперь самое интересное, персонаж может двигать ящик, если он стоит на том месте, куда персонаж хочет попасть. Главное что ни один объект не может покинуть пределы комнаты. Подвигайте ящик :)
+ 
+5. Добавьте точку в комнате, куда надо ящик передвинуть и двигайте :)
+ 
+*/
+
+enum Direction {
+    case up, down, left, right
+}
+
+struct Point {
+    var x, y: Int
+}
+
+struct Room {
+    var h, w: Int
+}
+
+class Game {
+    
+    var room: Room
+    
+    var goal: Point
+    
+    var player: Point {
+        
+        didSet {
+            if player.x < 1 || player.x > room.h || player.y < 1 || player.y > room.w {
+                player.x = oldValue.x
+                player.y = oldValue.y
+            }
+        }
+    }
+    
+    var box: Point {
+        
+        didSet {
+            if box.x < 1 || box.x > room.h || box.y < 1 || box.y > room.w {
+                box.x = oldValue.x
+                box.y = oldValue.y
+            }
+        }
+    }
+    
+    func textGame() {
+        
+        for h in (1...room.h).reversed() {
+            print()
+            
+            for w in 1...room.w {
+                
+                if h == goal.x && w == goal.y {
+                    print("♻️", terminator: "")
+                }
+
+                else if h == player.x && w == player.y {
+                    print("🤖", terminator: "")
+                    
+                } else if w == box.y && h == box.x {
+                    print("♥️", terminator: "")
+                }
+                else {
+                    print("⬜", terminator: "")
+                }
+            }
+        }
+    }
+    
+    func move(direction: Direction) {
+        switch direction {
+        case .down:
+            player.x -= 1
+            if box.x == player.x && box.y == player.y {
+                box.x -= 1
+            }
+            
+            score()
+            
+            if box.x == player.x {
+                player.x += 1
+            }
+            
+        case .up:
+            player.x += 1
+            if box.x == player.x && box.y == player.y {
+                box.x += 1
+            }
+            score()
+            
+            if box.x == player.x {
+                box.x -= 1
+            }
+            
+        case .right:
+            player.y += 1
+            if box.x == player.x && box.y == player.y {
+                box.y += 1
+            }
+            
+            score()
+            
+            if box.y == player.y {
+                box.y -= 1
+            }
+            
+        case .left:
+            player.y -= 1
+            if box.x == player.x && box.y == player.y {
+                box.y -= 1
+            }
+            
+            score()
+            
+            if box.y == player.y {
+                box.y += 1
+            }
+        }
+    }
+    
+    func score() {
+        if box.x == goal.x && box.y == box.y {
+            print("YOU WIN!!!! Congrats")
+        }
+    }
+    
+    init(player: Point, room: Room, box: Point, goal: Point) {
+        self.player = player
+        self.room = room
+        self.box = box
+        self.goal = goal
+    }
+}
+
+var player = Point(x: 3, y: 9)
+var room = Room(h: 10, w: 10)
+var box = Point(x: 2, y: 9)
+var goal = Point(x: 1, y: 9)
+
+var person = Game(player: player, room: room, box: box, goal: goal)
+
+person.move(direction: .down)
+
+person.textGame()
